@@ -5,7 +5,7 @@
 
 makeCacheMatrix <- function(x = matrix()) {
     cached.inverse <- NULL ##initiate a null variable to store the inverse when needed
-    input.matrix <-x ## Taking the matrix sent and putting into this variable
+    ##input.matrix <- x ## Taking the matrix sent and putting into this variable
     
     ## Set subfunction replaces the stored matrix. When set is called we are explicitly
     ## replacing the prior matrix and resetting m to NULL so that cacheSolve will return 
@@ -13,8 +13,8 @@ makeCacheMatrix <- function(x = matrix()) {
     ## We must use the <<- notation as input.matrix and cached.inverse are in the parent
     ## environment.
     
-    Set <- function(user.matrix) {
-        input.matrix <<- user.matrix
+    Set <- function(y) {
+        x <<- y
         cached.inverse <<- NULL
     }
     
@@ -22,10 +22,10 @@ makeCacheMatrix <- function(x = matrix()) {
     ## Subfunction runs a quick check to verify that a matrix was previously set
     
     Get <- function() {
-        if (is.null(input.matrix)) {
+        if (is.null(x)) {
             message("No matrix was available for return")
         } else {
-        return(input.matrix)
+        return(x)
         }
     }
         
@@ -48,13 +48,39 @@ makeCacheMatrix <- function(x = matrix()) {
     ## called directly from elsewhere. The "public" name of the function can differ
     ## from the internal name that we gave it. 
     
-    list(set=set, get=get, SetInverse=SetInverse, GetInverse=GetInverse)
+    list(Set=Set, Get=Get, SetInverse=SetInverse, GetInverse=GetInverse)
     
 }
 
 
-## Write a short comment describing this function
+## cacheSolve will take a matrix on input. If this is a new matrix it will calculate the 
+## inverse and store it. On future calls it will return the cached version of the matrix
+## If you want to replace the matrix you can call the set function in makecacheMatrix to replace it
 
-cacheSolve <- function(x, ...) {
-        ## Return a matrix that is the inverse of 'x'
+cacheSolve <- function(x = matrix(), ...) {
+    ## Return a matrix that is the inverse of 'x'
+    user.matrix <- makeCacheMatrix()
+
+    inverse.matrix <- user.matrix$GetInverse()
+
+    ## If a matrix was previously cached inverse.matrix should not be null. If X never previously existed
+    ## the inverse would be null as well
+    if(!is.null(inverse.matrix)) {
+        message("retrieving cached data")
+        return(inverse.matrix)
+    }
+    
+    ## otherwise inverse.matrix is null
+    ## we can call x$get because it was created as a matrix in makeCacheMatrix
+    ## we then retrieve the user provided matrix. Solve for the inverse and store it back
+    ## using the SetInverse subfunction from the makeCacheMatrix function.
+    ## we are assuming that this is an invertible matrix. Otherwise we would need to add additional
+    ## error handling. i.e. If the matrix is not square or it is a singular matrix
+
+    matrix <- user.matrix$Get()
+    inverse.matrix <- solve(matrix)
+    user.matrix$SetInverse(inverse.matrix)
+    inverse.matrix
+    
+        
 }
