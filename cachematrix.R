@@ -59,9 +59,8 @@ makeCacheMatrix <- function(x = matrix()) {
 
 cacheSolve <- function(x = matrix(), ...) {
     ## Return a matrix that is the inverse of 'x'
-    user.matrix <- makeCacheMatrix()
 
-    inverse.matrix <- user.matrix$GetInverse()
+    inverse.matrix <- x$GetInverse()
 
     ## If a matrix was previously cached inverse.matrix should not be null. If X never previously existed
     ## the inverse would be null as well
@@ -71,15 +70,15 @@ cacheSolve <- function(x = matrix(), ...) {
     }
     
     ## otherwise inverse.matrix is null
-    ## we can call x$get because it was created as a matrix in makeCacheMatrix
-    ## we then retrieve the user provided matrix. Solve for the inverse and store it back
+    ## we can call x$get because it was created as a matrix with makeCacheMatrix in the parent environment
+    ## using x <- makeCacheMatrix(some.matrix). Solve for the inverse and store it back
     ## using the SetInverse subfunction from the makeCacheMatrix function.
     ## we are assuming that this is an invertible matrix. Otherwise we would need to add additional
     ## error handling. i.e. If the matrix is not square or it is a singular matrix
-
-    matrix <- user.matrix$Get()
+    
+    matrix <- x$Get()
     inverse.matrix <- solve(matrix)
-    user.matrix$SetInverse(inverse.matrix)
+    x$SetInverse(inverse.matrix)
     inverse.matrix
     
         
